@@ -1,7 +1,5 @@
-import { SignOut } from "@/components/sign-out";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
-import Link from "next/link";
 
 interface User {
   email?: string;
@@ -14,23 +12,21 @@ const Page = async () => {
   const user = session?.user as User;
 
   return (
-    <div className="">
+    <div className="flex items-center justify-center min-h-1/2">
       {session ? (
         <>
-          <p>Signed in as:</p>
-          <div>Email: {user.email}</div>
-          <div>Name: {user.name}</div>
-          <div>Role: {user.role}</div>
-          <SignOut />
+          <Card className="min-w-96 ">
+            <CardContent>
+              <div className="space-y-4 text-center">
+                <h1 className="text-4xl font-black">Wellcome</h1>
+                <div>Email: {user.email}</div>
+                <div>Name: {user.name}</div>
+                <div>Role: {user.role}</div>
+              </div>
+            </CardContent>
+          </Card>
         </>
-      ) : (
-        <>
-          <p>You are not signed in</p>
-          <Link href="./sign-in">
-            <Button>Sign in</Button>
-          </Link>
-        </>
-      )}
+      ) : null}
     </div>
   );
 };
