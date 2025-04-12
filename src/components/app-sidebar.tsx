@@ -1,7 +1,8 @@
+"use client"
 import { ChevronUp, User2 } from "lucide-react";
 
 import { menuItems } from "./nav-links";
-
+import { signOut } from "next-auth/react";
 import {
   Sidebar,
   SidebarContent,
