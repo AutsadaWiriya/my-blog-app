@@ -72,6 +72,11 @@ export function AppSidebar({ session }: AppSidebarProps) {
                     </SidebarMenuButton>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent side="top" className="w-64 md:w-56">
+                    <Link href="./profile">
+                      <DropdownMenuItem>
+                        <span>Profile</span>
+                      </DropdownMenuItem>
+                    </Link>
                     <DropdownMenuItem onClick={() => signOut()}>
                       <span>Sign out</span>
                     </DropdownMenuItem>
