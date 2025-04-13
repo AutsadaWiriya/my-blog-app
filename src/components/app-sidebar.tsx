@@ -63,7 +63,7 @@ export function AppSidebar({ session }: AppSidebarProps) {
                         {session?.user?.image && (
                           <AvatarImage src={session?.user?.image} />
                         )}
-                        <AvatarFallback className="bg-neutral-700">
+                        <AvatarFallback>
                           {session.user?.name?.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>{" "}
