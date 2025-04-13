@@ -16,3 +16,12 @@ export const updateUserZod = z.object({
   name: z.string().min(3, { message: 'Name must be at least 3 characters long' }).optional(),
   image: z.string().optional(),
 })
+
+export const managerPutZod = z.object({
+  userId: z.string(),
+  newRole: z.enum(['member', 'manager', 'admin']), 
+})
+
+export const managerDeleteZod = z.object({
+  userId: z.string(),
+})
