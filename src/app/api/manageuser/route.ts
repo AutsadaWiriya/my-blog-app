@@ -16,7 +16,15 @@ export async function GET(request: Request) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
+
+    const skip = (page - 1) * limit;
+
     const users = await prisma.user.findMany({
+      skip,
+      take: limit,
       select: {
         id: true,
         name: true,
@@ -27,7 +35,16 @@ export async function GET(request: Request) {
       },
     });
 
-    return Response.json(users, { status: 200 });
+    const total = await prisma.user.count();
+    const totalPages = Math.ceil(total / limit);
+
+    return Response.json({
+      page,
+      limit,
+      total,
+      totalPages,
+      users,
+    }, { status: 200 });
   } catch (error) {
     console.error(error);
     return Response.json({ error: "Internal Server Error" }, { status: 500 });

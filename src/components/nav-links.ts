@@ -26,6 +26,11 @@ export const menuItems = {
       title: "Settings",
       url: "#",
       icon: Settings
+    },
+    {
+      title: "Manege Users",
+      url: "/manage/users",
+      icon: Settings
     }
   ]
 };
