@@ -19,10 +19,17 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
+    const search = searchParams.get("search") || "";
 
     const skip = (page - 1) * limit;
 
     const users = await prisma.user.findMany({
+      where: {
+        name: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      },
       skip,
       take: limit,
       select: {
@@ -35,7 +42,14 @@ export async function GET(request: Request) {
       },
     });
 
-    const total = await prisma.user.count();
+    const total = await prisma.user.count({
+      where: {
+        name: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      },
+    });
     const totalPages = Math.ceil(total / limit);
 
     return Response.json({
