@@ -37,7 +37,7 @@ export async function PUT(response: Response) {
     }
 
     const updatedUser = await prisma.user.update({
-      where: { id: validation.data.id },
+      where: { id: session?.user?.id },
       data: {
         name: validation.data.name || undefined,
         image: validation.data.image || undefined,
@@ -63,4 +63,28 @@ export async function PUT(response: Response) {
       { status: 500 }
     );
   }
+}
+
+export async function DELETE() {
+  try {
+    const session = await auth();
+
+    if (!session?.user)
+      return Response.json({ error: "Unauthorized" }, { status: 401 
+    });
+
+    const currentUser = await prisma.user.deleteMany({
+      where: { id: session?.user?.id },
+    });
+
+    return Response.json(
+      { message: "User deleted successfully", currentUser},
+      { status: 200 } 
+    )
+  } catch(error) {
+    return Response.json(
+      { error: "Failed to delete", data: error },
+      { status: 500 }
+    )
+  } 
 }
