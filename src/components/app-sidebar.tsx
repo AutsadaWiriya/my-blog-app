@@ -72,7 +72,7 @@ export function AppSidebar({ session }: AppSidebarProps) {
                     </SidebarMenuButton>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent side="top" className="w-64 md:w-56">
-                    <Link href="./profile">
+                    <Link href="/profile">
                       <DropdownMenuItem>
                         <span>Profile</span>
                       </DropdownMenuItem>
@@ -86,7 +86,7 @@ export function AppSidebar({ session }: AppSidebarProps) {
             ) : (
               <>
                 <SidebarMenuButton asChild>
-                  <Link href="./sign-in">
+                  <Link href="/sign-in">
                     <Button className="w-full">Sign In</Button>
                   </Link>
                 </SidebarMenuButton>
