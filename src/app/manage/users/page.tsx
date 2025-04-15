@@ -12,16 +12,17 @@ const page = async ({ searchParams }: Props) => {
   const role = (session?.user as { role?: string })?.role;
   if (!session || !["manager", "admin"].includes(role ?? "")) redirect("/404");
 
-  const currentPage = parseInt(searchParams.page || "1", 10);
-  const limit = parseInt(searchParams.limit || "10", 10);
-  const search = searchParams.search || ""; //
+  const params = await searchParams;
+  const currentPage = parseInt(params.page || "1", 10);
+  const limit = parseInt(params.limit || "10", 10);
+  const search = params.search || ""; //
 
   return (
     <>
       <div className="p-4">
         <Card>
           <CardHeader>
-          <CardTitle>Manage Users</CardTitle>
+            <CardTitle>Manage Users</CardTitle>
           </CardHeader>
           <CardContent>
             <UsersTable
