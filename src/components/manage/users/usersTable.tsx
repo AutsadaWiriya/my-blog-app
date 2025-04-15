@@ -8,7 +8,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 
 import {
   Pagination,
@@ -23,13 +22,6 @@ import SearchUser from "@/components/manage/users/SearchUser";
 import DeleteUser from "@/components/manage/users/DeleteUser";
 import SelectRole from "@/components/manage/users/SelectRole";
 import { useEffect, useState } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 interface Page {
   currentPage: number;
@@ -74,7 +66,7 @@ const UsersTable = ({ currentPage, limit, search, currentId }: Page) => {
               <TableHead>CreatedAt</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead className="text-right">Option</TableHead>
+              <TableHead className="text-right w-21.5">Option</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -99,14 +91,8 @@ const UsersTable = ({ currentPage, limit, search, currentId }: Page) => {
                 </TableCell>
                 <TableCell>{user.email}</TableCell>
 
-                <TableCell className="text-right">
-                  {currentId === user.id ? (
-                    <Button disabled className="w-21.5">
-                      Delete
-                    </Button>
-                  ) : (
-                    <DeleteUser userId={user.id} onDelete={fetchUsers} />
-                  )}
+                <TableCell className="text-right w-21.5">
+                  <DeleteUser userId={user.id} currentId={currentId} onDelete={fetchUsers} />
                 </TableCell>
               </TableRow>
             ))}

@@ -7,20 +7,20 @@ import { toast } from "sonner";
 
 interface User {
   userId: string;
+  currentId: string;
   onDelete: () => void;
 }
 
-const DeleteUser = ({ userId, onDelete }: User) => {
+const DeleteUser = ({ userId, currentId, onDelete }: User) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleDelete = async () => {
-    
     const response = await fetch(`/api/manageuser`, {
       method: "DELETE",
       body: JSON.stringify({ userId }),
     });
     const data = await response.json();
-    
+
     if (response.ok) {
       toast.success("User deleted successfully");
       onDelete();
@@ -34,24 +34,32 @@ const DeleteUser = ({ userId, onDelete }: User) => {
 
   return (
     <>
-      {!isOpen ? (
-        <Button onClick={() => setIsOpen(true)} className="w-21.5">
-          Delete
+      {currentId === userId ? (
+        <Button disabled className="w-21.5"> 
+          DELETE
         </Button>
       ) : (
         <>
-          <div className="space-x-1.5">
-            <Button onClick={() => setIsOpen(false)}>
-              <X className="h-4 w-4" />
+          {!isOpen ? (
+            <Button onClick={() => setIsOpen(true)} className="w-21.5">
+              DELETE
             </Button>
-            <Button
-              variant="destructive"
-              className="dark:bg-red-600"
-              onClick={handleDelete}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
+          ) : (
+            <>
+              <div className="space-x-1.5">
+                <Button onClick={() => setIsOpen(false)}>
+                  <X className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="dark:bg-red-600"
+                  onClick={handleDelete}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </>
+          )}
         </>
       )}
     </>
