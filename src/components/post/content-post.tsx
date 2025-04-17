@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { AlertCircle } from "lucide-react"
@@ -158,8 +158,8 @@ const ContentPost = () => {
       )}
 
       {/* แสดงโพสต์ */}
-      {posts.map((post) => (
-        <Card key={post.id} className="shadow-sm">
+      {posts.map((post, index) => (
+        <Card key={`${post.id}-${index}`} className="shadow-sm">
           <CardHeader className="flex flex-row items-center gap-4 pb-4">
             <Avatar>
               <AvatarImage src={post.user.image || "/placeholder.svg"} alt={post.user.name} />
@@ -180,8 +180,10 @@ const ContentPost = () => {
           </CardHeader>
           <CardContent>
             <p className="whitespace-pre-wrap">{post.content}</p>
-            <ButtonLike postId={post.id} postLike={post.likes.length} />
           </CardContent>
+          <CardFooter>
+            <ButtonLike postId={post.id} postLike={post.likes.length} />
+          </CardFooter>
         </Card>
       ))}
 

@@ -16,12 +16,18 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   content: z.string().min(1, { message: "Content is required" }),
 });
 
-const CreatePost = () => {
+interface CreatePostProps {
+  onPostCreated: () => void;
+}
+
+const CreatePost = ({ onPostCreated }: CreatePostProps) => {
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
@@ -34,12 +40,15 @@ const CreatePost = () => {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setIsSubmitting(true);
-      await fetch("/api/posts/create", {
+      const response = await fetch("/api/posts/create", {
         method: "POST",
         body: JSON.stringify(values),
       });
 
-      form.reset();
+      if (response.ok) {
+        form.reset();
+        onPostCreated(); // Call the callback instead of reloading
+      }
     } catch (error) {
       console.log(error);
     } finally {

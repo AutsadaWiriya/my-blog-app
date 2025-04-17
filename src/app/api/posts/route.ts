@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = req.nextUrl;
     const cursor = searchParams.get("cursor"); // postId ตัวสุดท้าย
-    const limit = 15;
+    const limit = 10;
 
     const posts = await prisma.post.findMany({
       take: limit + 1,
