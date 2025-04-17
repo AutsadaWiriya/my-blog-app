@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -13,13 +12,6 @@ import { auth } from "@/lib/auth";
 import { Separator } from "@/components/ui/separator";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-
-interface SignInFormData {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
 
 const page = async () => {
   const session = await auth();

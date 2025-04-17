@@ -8,7 +8,7 @@ interface Search {
   search: string;
 }
 
-const searchUser = ({ currentPage, limit, search }: Search) => {
+const SearchUser = ({ currentPage, limit, search }: Search) => {
   const router = useRouter();
   const [searchValue, setSearchValue] = useState(search);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,4 +30,4 @@ const searchUser = ({ currentPage, limit, search }: Search) => {
   );
 };
 
-export default searchUser;
+export default SearchUser;

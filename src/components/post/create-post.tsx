@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   content: z.string().min(1, { message: "Content is required" }),
@@ -26,8 +25,8 @@ interface CreatePostProps {
   onPostCreated: () => void;
 }
 
+// Remove unused router import and declaration
 const CreatePost = ({ onPostCreated }: CreatePostProps) => {
-  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<z.infer<typeof formSchema>>({

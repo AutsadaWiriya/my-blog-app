@@ -9,7 +9,7 @@ import { toast } from "sonner";
 
 interface Data {
   userId: string;
-  userRole: String;
+  userRole: string;
   currentId: string;
   onUpdateRole: () => void;
 }

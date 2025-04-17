@@ -36,7 +36,7 @@ const page = async () => {
             <CardFooter>
               <div className="w-full">
                 <p className="text-sm text-center">
-                  Don't have an account?{" "}
+                  <p>Don&apos;t have an account?</p>
                   <Link href="/sign-up" className="underline">
                     Sign Up
                   </Link>

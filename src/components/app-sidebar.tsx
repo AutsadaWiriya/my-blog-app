@@ -1,5 +1,5 @@
 "use client";
-import { ChevronUp, User2 } from "lucide-react";
+import { ChevronUp } from "lucide-react";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import { menuItems } from "./nav-links";

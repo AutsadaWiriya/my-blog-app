@@ -1,13 +1,14 @@
 import { signUpZod } from "@/lib/schema";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const zodParse = signUpZod.safeParse(body);
     if (!zodParse.success) {
-      return Response.json({
+      return NextResponse.json({
         error: "Invalid data",
         data: zodParse.error,
       });
@@ -20,7 +21,7 @@ export async function POST(req: Request) {
     });
 
     if (existingUser) {
-      return Response.json({
+      return NextResponse.json({
         error: "User already exists",
       }, { status: 400 });
     }
@@ -35,11 +36,11 @@ export async function POST(req: Request) {
       },
     });
 
-    return Response.json({
+    return NextResponse.json({
       message: "Success",
       data: newUser,
     });
   } catch (error) {
-    return Response.json({ error: "Something went wrong", data: error });
+    return NextResponse.json({ error: "Something went wrong", data: error });
   }
 }

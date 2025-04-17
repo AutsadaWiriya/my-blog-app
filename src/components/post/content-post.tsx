@@ -71,7 +71,7 @@ const ContentPost = () => {
   // 👇 โหลดรอบแรก
   useEffect(() => {
     fetchPosts()
-  }, [])
+  }, [fetchPosts]);
 
   // 👇 Observer สำหรับ Infinite Scroll
   useEffect(() => {
