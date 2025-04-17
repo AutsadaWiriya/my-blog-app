@@ -1,65 +1,50 @@
-"use client";
-import { useState } from "react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import {
-  AlertTriangle,
-  Calendar,
-  CheckCircle,
-  Edit,
-  Loader2,
-  Mail,
-  Save,
-  Shield,
-  User,
-  X,
-} from "lucide-react";
-import { Card } from "../ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+"use client"
+import { useState } from "react"
+import type React from "react"
 
-interface User {
-  name: string;
-  email: string;
-  role: string;
-  image: string;
-  createdAt: string;
+import { Button } from "../ui/button"
+import { Input } from "../ui/input"
+import { Label } from "../ui/label"
+import { AlertTriangle, Calendar, CheckCircle, Edit, Loader2, Mail, Save, Shield, User, X } from "lucide-react"
+import { Card } from "../ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+
+interface UserProps {
+  name: string
+  email: string
+  role: string
+  image: string
+  createdAt: string
 }
 
-export default function InfoProfile({
-  name,
-  email,
-  role,
-  image,
-  createdAt,
-}: User) {
-  const [edit, setEdit] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<User>({
+export default function InfoProfile({ name, email, role, image, createdAt }: UserProps) {
+  const [edit, setEdit] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [user, setUser] = useState<UserProps>({
     name,
     email,
     role,
     image,
     createdAt,
-  });
+  })
 
   const handleCancel = () => {
-    setEdit(false);
+    setEdit(false)
     setUser({
       name,
       email,
       role,
       image,
       createdAt,
-    });
-  };
+    })
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setSaveSuccess(false);
+    e.preventDefault()
+    setLoading(true)
+    setSaveSuccess(false)
 
     try {
       // Here you would make an actual API call
@@ -69,27 +54,27 @@ export default function InfoProfile({
           name: user.name,
           image: user.image,
         }),
-      });
+      })
       if (!response.ok) {
-        throw new Error("Failed to update profile.");
+        setError("Failed to update profile. Please check your inputs and try again.")
+        throw new Error("Failed to update profile.")
       }
 
-      setError(null);
-      setSaveSuccess(true);
+      setError(null)
+      setSaveSuccess(true)
 
       // Clear success message after 3 seconds
       setTimeout(() => {
-        setSaveSuccess(false);
-      }, 3000);
-      setEdit(false);
-    } catch (error) {
-      setError(
-        "Failed to update profile. Please check your inputs and try again."
-      );
+        setSaveSuccess(false)
+      }, 3000)
+      setEdit(false)
+    } catch {
+      // No need to use the error variable
+      setError("Failed to update profile. Please check your inputs and try again.")
     }
 
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   return (
     <>
@@ -100,10 +85,7 @@ export default function InfoProfile({
             <CheckCircle className="h-5 w-5 mr-2" />
             <span>Profile updated successfully!</span>
           </div>
-          <button
-            onClick={() => setSaveSuccess(false)}
-            className="text-green-500 hover:text-green-700"
-          >
+          <button onClick={() => setSaveSuccess(false)} className="text-green-500 hover:text-green-700">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -116,10 +98,7 @@ export default function InfoProfile({
             <AlertTriangle className="h-5 w-5 mr-2" />
             <span>{error}</span>
           </div>
-          <button
-            onClick={() => setError(null)}
-            className="text-red-500 hover:text-red-700"
-          >
+          <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -131,13 +110,8 @@ export default function InfoProfile({
           <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2">
             <div className="relative">
               <Avatar className="w-32 h-32 shadow-lg">
-                <AvatarImage
-                  src={user.image || "/placeholder.svg"}
-                  alt={user.name || "Profile"}
-                />
-                <AvatarFallback className="text-5xl">
-                  {user.name?.slice(0, 2).toUpperCase()}
-                </AvatarFallback>
+                <AvatarImage src={user.image || "/placeholder.svg"} alt={user.name || "Profile"} />
+                <AvatarFallback className="text-5xl">{user.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
               </Avatar>
               {!edit && (
                 <button
@@ -167,9 +141,7 @@ export default function InfoProfile({
                     disabled
                     className="bg-gray-100 cursor-not-allowed text-gray-500"
                   />
-                  <p className="mt-1 text-xs text-gray-500">
-                    Email cannot be changed
-                  </p>
+                  <p className="mt-1 text-xs text-gray-500">Email cannot be changed</p>
                 </div>
 
                 <div className="space-y-1.5">
@@ -193,14 +165,10 @@ export default function InfoProfile({
                   <Input
                     type="text"
                     value={user.image}
-                    onChange={(e) =>
-                      setUser({ ...user, image: e.target.value })
-                    }
+                    onChange={(e) => setUser({ ...user, image: e.target.value })}
                     placeholder="https://example.com/your-image.jpg"
                   />
-                  <p className="mt-1 text-xs text-gray-500">
-                    Enter a valid image URL
-                  </p>
+                  <p className="mt-1 text-xs text-gray-500">Enter a valid image URL</p>
                 </div>
               </div>
 
@@ -218,12 +186,7 @@ export default function InfoProfile({
                     </>
                   )}
                 </Button>
-                <Button
-                  type="button"
-                  onClick={handleCancel}
-                  variant="outline"
-                  className="flex-1"
-                >
+                <Button type="button" onClick={handleCancel} variant="outline" className="flex-1">
                   <X className="h-4 w-4 mr-2" />
                   Cancel
                 </Button>
@@ -233,9 +196,7 @@ export default function InfoProfile({
             <div className="space-y-6">
               {/* User Info */}
               <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold">
-                  {user.name || "Unnamed User"}
-                </h2>
+                <h2 className="text-2xl font-bold">{user.name || "Unnamed User"}</h2>
                 <p className="text-gray-500 dark:text-gray-400">{user.email}</p>
               </div>
 
@@ -245,9 +206,7 @@ export default function InfoProfile({
                   <div className="flex items-center">
                     <Shield className="h-5 w-5 text-indigo-600 mr-3" />
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Account Type
-                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Account Type</p>
                       <p className="font-medium capitalize">{user.role}</p>
                     </div>
                   </div>
@@ -257,9 +216,7 @@ export default function InfoProfile({
                   <div className="flex items-center">
                     <Calendar className="h-5 w-5 text-indigo-600 mr-3" />
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Member Since
-                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Member Since</p>
                       <p className="font-medium">{user.createdAt}</p>
                     </div>
                   </div>
@@ -278,5 +235,5 @@ export default function InfoProfile({
         </div>
       </Card>
     </>
-  );
+  )
 }

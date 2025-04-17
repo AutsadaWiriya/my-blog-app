@@ -1,19 +1,19 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server"
+import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
 
 export async function GET(req: Request) {
   try {
-    const session = await auth();
+    const session = await auth()
     if (!session?.user?.id) {
-      return NextResponse.json({ liked: false }, { status: 200 });
+      return NextResponse.json({ liked: false }, { status: 200 })
     }
 
-    const { searchParams } = new URL(req.url);
-    const postId = searchParams.get("postId");
+    const { searchParams } = new URL(req.url)
+    const postId = searchParams.get("postId")
 
     if (!postId) {
-      return NextResponse.json({ liked: false }, { status: 400 });
+      return NextResponse.json({ liked: false }, { status: 400 })
     }
 
     const existingLike = await prisma.like.findFirst({
@@ -21,26 +21,26 @@ export async function GET(req: Request) {
         postId,
         userId: session.user.id,
       },
-    });
+    })
 
-    return NextResponse.json({ liked: !!existingLike }, { status: 200 });
+    return NextResponse.json({ liked: !!existingLike }, { status: 200 })
   } catch (error) {
-    console.error("Error checking like status:", error);
-    return NextResponse.json({ liked: false }, { status: 500 });
+    console.error("Error checking like status:", error)
+    return NextResponse.json({ liked: false }, { status: 500 })
   }
 }
 
 export async function POST(req: Request) {
   try {
-    const session = await auth();
-    if(!session){
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    const session = await auth()
+    if (!session) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
     }
-    const userId  = session?.user?.id;
+    const userId = session?.user?.id
 
-    const { postId } = await req.json();
+    const { postId } = await req.json()
     if (!postId) {
-      return NextResponse.json({ message: "Post ID is required" }, { status: 400 });
+      return NextResponse.json({ message: "Post ID is required" }, { status: 400 })
     }
 
     // Check if like already exists
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
         postId,
         userId,
       },
-    });
+    })
 
     if (existingLike) {
       // If like exists, remove it
@@ -57,8 +57,8 @@ export async function POST(req: Request) {
         where: {
           id: existingLike.id,
         },
-      });
-      return NextResponse.json({ message: "Like removed" }, { status: 200 });
+      })
+      return NextResponse.json({ message: "Like removed" }, { status: 200 })
     }
 
     // If like doesn't exist, create it
@@ -66,23 +66,20 @@ export async function POST(req: Request) {
       data: {
         post: {
           connect: {
-            id: postId
-          }
+            id: postId,
+          },
         },
         user: {
           connect: {
-            id: userId
-          }
+            id: userId,
+          },
         },
       },
-    });
+    })
 
-    return NextResponse.json({ message: "Post liked", like }, { status: 201 });
+    return NextResponse.json({ message: "Post liked", like }, { status: 201 })
   } catch (error) {
-    console.error("Error handling like:", error);
-    return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("Error handling like:", error)
+    return NextResponse.json({ message: "Internal server error" }, { status: 500 })
   }
 }

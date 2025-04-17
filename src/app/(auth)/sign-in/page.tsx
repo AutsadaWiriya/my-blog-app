@@ -1,21 +1,15 @@
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { GoogleSignIn, GithubSignIn } from "@/components/socials-sign-in";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { GoogleSignIn, GithubSignIn } from "@/components/socials-sign-in"
 
-import { auth } from "@/lib/auth";
-import { Separator } from "@/components/ui/separator";
-import { redirect } from "next/navigation";
-import Link from "next/link";
-import ClientForm from "@/components/auth/ClientForm";
+import { auth } from "@/lib/auth"
+import { Separator } from "@/components/ui/separator"
+import { redirect } from "next/navigation"
+import Link from "next/link"
+import ClientForm from "@/components/auth/ClientForm"
 
 const page = async () => {
-  const session = await auth();
-  if (session) redirect("/");
+  const session = await auth()
+  if (session) redirect("/")
 
   return (
     <>
@@ -35,19 +29,19 @@ const page = async () => {
             </CardContent>
             <CardFooter>
               <div className="w-full">
-                <p className="text-sm text-center">
-                  <p>Don&apos;t have an account?</p>
+                <div className="text-sm text-center">
+                  <span>Don&apos;t have an account?</span>{" "}
                   <Link href="/sign-up" className="underline">
                     Sign Up
                   </Link>
-                </p>
+                </div>
               </div>
             </CardFooter>
           </Card>
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default page;
+export default page

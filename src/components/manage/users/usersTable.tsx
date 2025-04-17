@@ -1,13 +1,6 @@
-"use client";
+"use client"
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 import {
   Pagination,
@@ -15,42 +8,48 @@ import {
   PaginationItem,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
-import PaginationInput from "@/components/manage/users/PaginationInput";
-import LimitInput from "@/components/manage/users/LimitInput";
-import SearchUser from "@/components/manage/users/SearchUser";
-import DeleteUser from "@/components/manage/users/DeleteUser";
-import SelectRole from "@/components/manage/users/SelectRole";
-import { useEffect, useState } from "react";
+} from "@/components/ui/pagination"
+import PaginationInput from "@/components/manage/users/PaginationInput"
+import LimitInput from "@/components/manage/users/LimitInput"
+import SearchUser from "@/components/manage/users/SearchUser"
+import DeleteUser from "@/components/manage/users/DeleteUser"
+import SelectRole from "@/components/manage/users/SelectRole"
+import { useEffect, useState, useCallback } from "react"
 
 interface Page {
-  currentPage: number;
-  limit: number;
-  search: string;
-  currentId: string;
+  currentPage: number
+  limit: number
+  search: string
+  currentId: string
+}
+
+interface User {
+  id: string
+  name: string | null
+  email: string | null
+  role: string
+  createdAt: string
+  updatedAt: string
 }
 
 const UsersTable = ({ currentPage, limit, search, currentId }: Page) => {
-  const [users, setUsers] = useState<any[]>([]);
-  const [totalPages, setTotalPages] = useState(1);
+  const [users, setUsers] = useState<User[]>([])
+  const [totalPages, setTotalPages] = useState(1)
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
-      const res = await fetch(
-        `/api/manageuser?page=${currentPage}&limit=${limit}&search=${search}`
-      );
-      const data = await res.json();
-      console.log(data);
-      setUsers(data.users);
-      setTotalPages(data.totalPages);
+      const res = await fetch(`/api/manageuser?page=${currentPage}&limit=${limit}&search=${search}`)
+      const data = await res.json()
+      setUsers(data.users)
+      setTotalPages(data.totalPages)
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("Error fetching users:", error)
     }
-  };
+  }, [currentPage, limit, search])
 
   useEffect(() => {
-    fetchUsers();
-  }, [currentPage, limit, search]);
+    fetchUsers()
+  }, [currentPage, limit, search, fetchUsers])
 
   return (
     <>
@@ -74,20 +73,11 @@ const UsersTable = ({ currentPage, limit, search, currentId }: Page) => {
               <TableRow key={user.id}>
                 <TableCell className="font-medium">
                   {user.name}
-                  {currentId === user.id && (
-                    <span className="text-red-500"> (me)</span>
-                  )}
+                  {currentId === user.id && <span className="text-red-500"> (me)</span>}
                 </TableCell>
+                <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
                 <TableCell>
-                  {new Date(user.createdAt).toLocaleDateString()}
-                </TableCell>
-                <TableCell>
-                  <SelectRole
-                    userId={user.id}
-                    userRole={user.role}
-                    currentId={currentId}
-                    onUpdateRole={fetchUsers}
-                  />
+                  <SelectRole userId={user.id} userRole={user.role} currentId={currentId} onUpdateRole={fetchUsers} />
                 </TableCell>
                 <TableCell>{user.email}</TableCell>
 
@@ -103,11 +93,7 @@ const UsersTable = ({ currentPage, limit, search, currentId }: Page) => {
           <PaginationContent>
             {currentPage > 1 && (
               <PaginationItem>
-                <PaginationPrevious
-                  href={`?page=${
-                    currentPage - 1
-                  }&limit=${limit}&search=${search}`}
-                />
+                <PaginationPrevious href={`?page=${currentPage - 1}&limit=${limit}&search=${search}`} />
               </PaginationItem>
             )}
 
@@ -118,11 +104,7 @@ const UsersTable = ({ currentPage, limit, search, currentId }: Page) => {
             )}
 
             <PaginationItem>
-              <PaginationInput
-                currentPage={currentPage}
-                totalPages={totalPages}
-                limit={limit}
-              />
+              <PaginationInput currentPage={currentPage} totalPages={totalPages} limit={limit} />
             </PaginationItem>
 
             <PaginationItem>
@@ -137,18 +119,14 @@ const UsersTable = ({ currentPage, limit, search, currentId }: Page) => {
 
             {currentPage < totalPages && (
               <PaginationItem>
-                <PaginationNext
-                  href={`?page=${
-                    currentPage + 1
-                  }&limit=${limit}&search=${search}`}
-                />
+                <PaginationNext href={`?page=${currentPage + 1}&limit=${limit}&search=${search}`} />
               </PaginationItem>
             )}
           </PaginationContent>
         </Pagination>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default UsersTable;
+export default UsersTable
