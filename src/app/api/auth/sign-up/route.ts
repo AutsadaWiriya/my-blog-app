@@ -1,6 +1,6 @@
 import { signUpZod } from "@/lib/schema";
 import { prisma } from "@/lib/prisma";
-import  bcrypt  from "bcryptjs";
+import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
   try {
@@ -11,6 +11,18 @@ export async function POST(req: Request) {
         error: "Invalid data",
         data: zodParse.error,
       });
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        email: zodParse.data.email,
+      },
+    });
+
+    if (existingUser) {
+      return Response.json({
+        error: "User already exists",
+      }, { status: 400 });
     }
 
     const hashPassword = await bcrypt.hash(zodParse.data.password, 10);
@@ -25,9 +37,8 @@ export async function POST(req: Request) {
 
     return Response.json({
       message: "Success",
-      data: newUser
+      data: newUser,
     });
-
   } catch (error) {
     return Response.json({ error: "Something went wrong", data: error });
   }
