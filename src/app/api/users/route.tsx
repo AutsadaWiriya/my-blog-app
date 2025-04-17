@@ -1,26 +1,27 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { updateUserZod } from "@/lib/schema";
+import { NextResponse } from "next/server";
 
-export async function PUT(response: Response) {
+export async function PUT(request: Request) {
   try {
     const session = await auth();
 
     if (!session?.user)
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const currentUser = await prisma.user.findUnique({
       where: { id: session?.user?.id },
     });
 
     if (!currentUser)
-      return Response.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    const data = await response.json();
+    const data = await request.json();
     const validation = updateUserZod.safeParse(data);
 
     if (!validation.success) {
-      return Response.json(
+      return NextResponse.json(
         { error: "Invalid data", data: validation.error },
         { status: 400 }
       );
@@ -52,13 +53,13 @@ export async function PUT(response: Response) {
       },
     });
 
-    return Response.json(
+    return NextResponse.json(
       { message: "User updated successfully", data: updatedUser },
       { status: 200 }
     );
   } catch (error) {
     console.log("error", error);
-    return Response.json(
+    return NextResponse.json(
       { error: "Failed to update", data: error },
       { status: 500 }
     );
@@ -70,21 +71,20 @@ export async function DELETE() {
     const session = await auth();
 
     if (!session?.user)
-      return Response.json({ error: "Unauthorized" }, { status: 401 
-    });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const currentUser = await prisma.user.deleteMany({
       where: { id: session?.user?.id },
     });
 
-    return Response.json(
-      { message: "User deleted successfully", currentUser},
-      { status: 200 } 
-    )
-  } catch(error) {
-    return Response.json(
+    return NextResponse.json(
+      { message: "User deleted successfully", currentUser },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json(
       { error: "Failed to delete", data: error },
       { status: 500 }
-    )
-  } 
+    );
+  }
 }

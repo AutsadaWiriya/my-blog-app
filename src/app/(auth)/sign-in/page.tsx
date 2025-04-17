@@ -1,23 +1,15 @@
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { GoogleSignIn, GithubSignIn } from "@/components/socials-sign-in";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { GoogleSignIn, GithubSignIn } from "@/components/socials-sign-in"
 
-import { auth, signIn } from "@/lib/auth";
-import { Separator } from "@/components/ui/separator";
-import { redirect } from "next/navigation";
-import Link from "next/link";
+import { auth } from "@/lib/auth"
+import { Separator } from "@/components/ui/separator"
+import { redirect } from "next/navigation"
+import Link from "next/link"
+import ClientForm from "@/components/auth/ClientForm"
 
 const page = async () => {
-  const session = await auth();
-  if (session) redirect("/");
+  const session = await auth()
+  if (session) redirect("/")
 
   return (
     <>
@@ -33,47 +25,23 @@ const page = async () => {
                 <GithubSignIn />
               </div>
               <Separator />
-              <form
-                id="signin-form"
-                action={async (formData: FormData) => {
-                  "use server";
-                  await signIn("credentials", formData);
-                }}
-              >
-                <div className="grid gap-4 w-full">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" name="email" type="email" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="password">Password</Label>
-                    <Input id="password" name="password" type="password" />
-                  </div>
-                  <Button
-                    type="submit"
-                    form="signin-form"
-                    className="w-full mt-3"
-                  >
-                    Sign In
-                  </Button>
-                </div>
-              </form>
+              <ClientForm />
             </CardContent>
             <CardFooter>
               <div className="w-full">
-                <p className="text-sm text-center">
-                  Don't have an account?{" "}
+                <div className="text-sm text-center">
+                  <span>Don&apos;t have an account?</span>{" "}
                   <Link href="/sign-up" className="underline">
                     Sign Up
                   </Link>
-                </p>
+                </div>
               </div>
             </CardFooter>
           </Card>
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default page;
+export default page

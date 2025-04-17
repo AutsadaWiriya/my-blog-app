@@ -26,7 +26,7 @@ const GithubSignIn = () => {
       await signIn("github")
     }}>
       <Button variant="outline" className="w-full">
-        <Github />
+        <Github className="dark:fill-white" />
         GitHub
       </Button>
     </form>

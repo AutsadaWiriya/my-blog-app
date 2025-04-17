@@ -28,7 +28,7 @@ export const menuItems = {
       icon: Settings
     },
     {
-      title: "Manege Users",
+      title: "Manage Users",
       url: "/manage/users",
       icon: Settings
     }

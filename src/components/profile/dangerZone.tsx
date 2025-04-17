@@ -1,42 +1,44 @@
-"use client";
+"use client"
 
-import { AlertTriangle, Loader2, Trash2, X } from "lucide-react";
-import { Card } from "../ui/card";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { useState } from "react";
+import { AlertTriangle, Loader2, Trash2, X } from "lucide-react"
+import { Card } from "../ui/card"
+import { Input } from "../ui/input"
+import { Button } from "../ui/button"
+import { useState } from "react"
 
 interface User {
-  email: string;
+  email: string
 }
 
 export default function DangerZone({ email }: User) {
-  const [error, setError] = useState<string | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false);
-  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [error, setError] = useState<string | null>(null)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteConfirmText, setDeleteConfirmText] = useState("")
 
   const handleDeleteAccount = async () => {
     if (deleteConfirmText !== email) {
-      setError("Please enter your email correctly to confirm deletion");
-      return;
+      setError("Please enter your email correctly to confirm deletion")
+      return
     }
-    setDeleteLoading(true);
+    setDeleteLoading(true)
 
     try {
       const response = await fetch("/api/users", {
         method: "DELETE",
-      });
+      })
       if (!response.ok) {
-        throw new Error("Failed to delete account.");
+        setError("Failed to delete account. Please try again later.")
+        throw new Error("Failed to delete account.")
       }
 
-      window.location.href = "/";
-    } catch (error) {
-      setError("Failed to delete account. Please try again later.");
-      setDeleteLoading(false);
+      window.location.href = "/"
+    } catch {
+      // No need to use the error variable
+      setError("Failed to delete account. Please try again later.")
+      setDeleteLoading(false)
     }
-  };
+  }
 
   return (
     <>
@@ -51,9 +53,9 @@ export default function DangerZone({ email }: User) {
 
         <div className="p-6">
           <p className="mb-6">
-            Deleting your account is permanent. All your data will be
-            permanently removed and cannot be recovered.
+            Deleting your account is permanent. All your data will be permanently removed and cannot be recovered.
           </p>
+          {error && <div className="text-red-500 mb-4">{error}</div>}
 
           {showDeleteConfirm ? (
             <div className="bg-red-50 border border-red-200 dark:bg-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
@@ -62,8 +64,7 @@ export default function DangerZone({ email }: User) {
                 Confirm Account Deletion
               </h4>
               <p className="text-red-700 text-sm mb-4">
-                This action cannot be undone. Please type your email{" "}
-                <strong>{email}</strong> to confirm.
+                This action cannot be undone. Please type your email <strong>{email}</strong> to confirm.
               </p>
               <div className="bg-white rounded-md mb-4">
                 <Input
@@ -95,9 +96,9 @@ export default function DangerZone({ email }: User) {
                 </Button>
                 <Button
                   onClick={() => {
-                    setShowDeleteConfirm(false);
-                    setDeleteConfirmText("");
-                    setError(null);
+                    setShowDeleteConfirm(false)
+                    setDeleteConfirmText("")
+                    setError(null)
                   }}
                   variant="outline"
                   className="flex items-center justify-center dark:bg-white dark:text-neutral-800"
@@ -120,5 +121,5 @@ export default function DangerZone({ email }: User) {
         </div>
       </Card>
     </>
-  );
+  )
 }
