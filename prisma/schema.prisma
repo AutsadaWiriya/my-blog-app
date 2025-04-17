@@ -47,6 +47,8 @@ model User {
   role          String    @default("member")
   accounts      Account[]
   sessions      Session[]
+  posts         Post[]
+  likes         Like[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -60,4 +62,28 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  content   String?
+  createdAt   DateTime  @default(now())
+  likes     Like[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("posts")
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  postId    String   @map("post_id")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  @@unique([userId, postId])
+
+  @@map("likes")
 }

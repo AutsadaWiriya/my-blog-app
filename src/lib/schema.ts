@@ -24,3 +24,7 @@ export const managerPutZod = z.object({
 export const managerDeleteZod = z.object({
   userId: z.string(),
 })
+
+export const createPostZod = z.object({
+  content: z.string().min(1, { message: 'Content must be at least 1 characters long' }),
+})
