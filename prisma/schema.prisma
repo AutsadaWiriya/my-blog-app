@@ -13,15 +13,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String  @map("provider_account_id")
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
@@ -43,14 +42,14 @@ model User {
   email         String?   @unique
   password      String?
   emailVerified DateTime? @map("email_verified")
-  image         String? 
+  image         String?
   role          String    @default("member")
-  accounts      Account[]
-  sessions      Session[]
-  posts         Post[]
-  likes         Like[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  likes         Like[]
+  posts         Post[]
+  sessions      Session[]
 
   @@map("users")
 }
@@ -68,22 +67,20 @@ model Post {
   id        String   @id @default(cuid())
   userId    String   @map("user_id")
   content   String?
-  createdAt   DateTime  @default(now())
+  createdAt DateTime @default(now())
   likes     Like[]
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("posts")
 }
 
 model Like {
-  id        String   @id @default(cuid())
-  userId    String   @map("user_id")
-  postId    String   @map("post_id")
+  id     String @id @default(cuid())
+  userId String @map("user_id")
+  postId String @map("post_id")
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   @@unique([userId, postId])
-
   @@map("likes")
 }
