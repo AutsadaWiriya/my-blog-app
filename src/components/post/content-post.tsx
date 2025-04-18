@@ -1,7 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
@@ -21,13 +26,15 @@ interface Post {
     id: string;
     userId: string;
   }[];
+  expanded?: boolean;
 }
 
 interface ContentPostProps {
   refreshKey: number; // รับค่า refreshKey จาก parent
+  currentId: string;
 }
 
-const ContentPost = ({ refreshKey }: ContentPostProps) => {
+const ContentPost = ({ refreshKey, currentId }: ContentPostProps) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
@@ -52,7 +59,8 @@ const ContentPost = ({ refreshKey }: ContentPostProps) => {
           // Prevent duplicate posts by checking IDs
           setPosts((prev) => {
             const newPosts = data.posts.filter(
-              (newPost: Post) => !prev.some((existingPost) => existingPost.id === newPost.id)
+              (newPost: Post) =>
+                !prev.some((existingPost) => existingPost.id === newPost.id)
             );
             return [...prev, ...newPosts];
           });
@@ -144,8 +152,13 @@ const ContentPost = ({ refreshKey }: ContentPostProps) => {
         <Card key={`${post.id}-${index}`} className="shadow-sm">
           <CardHeader className="flex flex-row items-center gap-4 pb-4">
             <Avatar>
-              <AvatarImage src={post.user.image || "/placeholder.svg"} alt={post.user.name} />
-              <AvatarFallback>{post.user.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
+              <AvatarImage
+                src={post.user.image || "/placeholder.svg"}
+                alt={post.user.name}
+              />
+              <AvatarFallback>
+                {post.user.name?.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
             </Avatar>
             <div>
               <p className="font-semibold">{post.user.name}</p>
@@ -161,25 +174,64 @@ const ContentPost = ({ refreshKey }: ContentPostProps) => {
             </div>
           </CardHeader>
           <CardContent>
-            <p className="whitespace-pre-wrap">{post.content}</p>
+            <div className="relative">
+              <p
+                className={`whitespace-pre-wrap ${
+                  !post.expanded && "line-clamp-10"
+                }`}
+              >
+                {post.content}
+              </p>
+              {post.content.split("\n").length > 10 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="mt-2 text-blue-600 hover:text-blue-800 p-0 h-auto font-normal"
+                  onClick={() => {
+                    setPosts((prev) =>
+                      prev.map((p) =>
+                        p.id === post.id ? { ...p, expanded: !p.expanded } : p
+                      )
+                    );
+                  }}
+                >
+                  {post.expanded ? "แสดงน้อยลง" : "แสดงเพิ่มเติม"}
+                </Button>
+              )}
+            </div>
           </CardContent>
           <CardFooter>
-            <ButtonLike postId={post.id} postLike={post.likes.length} />
+            <ButtonLike
+              postId={post.id}
+              postLike={post.likes.length}
+              isLiked={post.likes.some((like) => like.userId === currentId)}
+            />
           </CardFooter>
         </Card>
       ))}
 
       {/* จุดสังเกตว่าถึงล่างสุดหรือยัง */}
       {hasMore && !isLoading && (
-        <div ref={observerRef} className="text-center py-4 text-sm text-gray-500">
+        <div
+          ref={observerRef}
+          className="text-center py-4 text-sm text-gray-500"
+        >
           กำลังโหลดเพิ่มเติม...
         </div>
       )}
 
       {/* แสดงสถานะกำลังโหลดเพิ่มเติม */}
-      {isLoading && posts.length > 0 && <div className="text-center py-4 text-sm text-gray-500">กำลังโหลดเพิ่มเติม...</div>}
+      {isLoading && posts.length > 0 && (
+        <div className="text-center py-4 text-sm text-gray-500">
+          กำลังโหลดเพิ่มเติม...
+        </div>
+      )}
 
-      {!hasMore && !isLoading && <div className="text-center py-4 text-sm text-gray-400">ไม่มีโพสต์เพิ่มเติมแล้ว</div>}
+      {!hasMore && !isLoading && (
+        <div className="text-center py-4 text-sm text-gray-400">
+          ไม่มีโพสต์เพิ่มเติมแล้ว
+        </div>
+      )}
     </div>
   );
 };
