@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Heart } from "lucide-react"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 interface ButtonLikeProps {
   postId: string
@@ -11,12 +13,15 @@ interface ButtonLikeProps {
   onLikeChange?: (liked: boolean) => void
 }
 
-const ButtonLike = ({ postId, postLike, isLiked = false, onLikeChange }: ButtonLikeProps) => {
+const ButtonLike = ({ postId, postLike, isLiked = false,  onLikeChange }: ButtonLikeProps) => {
+  const route  = useRouter()
   const [liked, setLiked] = useState(isLiked)
   const [isLoading, setIsLoading] = useState(false)
   const [likeCount, setLikeCount] = useState(postLike)
 
   const handleLike = async () => {
+    const newLikeState = !liked
+    setLiked(newLikeState)
     try {
       setIsLoading(true)
       const response = await fetch("/api/posts/like", {
@@ -28,14 +33,18 @@ const ButtonLike = ({ postId, postLike, isLiked = false, onLikeChange }: ButtonL
       })
 
       if (response.ok) {
-        const newLikeState = !liked
-        setLiked(newLikeState)
         setLikeCount((prev) => prev + (newLikeState ? 1 : -1))
 
         // Notify parent component about the like change
         if (onLikeChange) {
           onLikeChange(newLikeState)
         }
+      }
+
+      if (!response.ok) {
+        setLiked(!newLikeState)
+        toast.error("You must sign in to like a post")
+        route.push("/sign-in")
       }
     } catch (error) {
       console.error("Error liking post:", error)
