@@ -28,3 +28,17 @@ export const managerDeleteZod = z.object({
 export const createPostZod = z.object({
   content: z.string().min(1, { message: 'Content must be at least 1 characters long' }),
 })
+
+export const createCommentZod = z.object({
+  postId: z.string({ message: 'Post ID is required' }),
+  content: z.string().min(1, { message: 'Comment content is required' }).max(500, { message: 'Comment cannot exceed 500 characters' }),
+})
+
+export const updateCommentZod = z.object({
+  commentId: z.string({ message: 'Comment ID is required' }),
+  content: z.string().min(1, { message: 'Comment content is required' }).max(500, { message: 'Comment cannot exceed 500 characters' }),
+})
+
+export const deleteCommentZod = z.object({
+  commentId: z.string({ message: 'Comment ID is required' }),
+})
