@@ -13,8 +13,8 @@ interface ButtonLikeProps {
   onLikeChange?: (liked: boolean) => void
 }
 
-const ButtonLike = ({ postId, postLike, isLiked = false,  onLikeChange }: ButtonLikeProps) => {
-  const route  = useRouter()
+const ButtonLike = ({ postId, postLike, isLiked = false, onLikeChange }: ButtonLikeProps) => {
+  const route = useRouter()
   const [liked, setLiked] = useState(isLiked)
   const [isLoading, setIsLoading] = useState(false)
   const [likeCount, setLikeCount] = useState(postLike)
@@ -34,8 +34,6 @@ const ButtonLike = ({ postId, postLike, isLiked = false,  onLikeChange }: Button
 
       if (response.ok) {
         setLikeCount((prev) => prev + (newLikeState ? 1 : -1))
-
-        // Notify parent component about the like change
         if (onLikeChange) {
           onLikeChange(newLikeState)
         }
@@ -43,7 +41,7 @@ const ButtonLike = ({ postId, postLike, isLiked = false,  onLikeChange }: Button
 
       if (!response.ok) {
         setLiked(!newLikeState)
-        toast.error("You must sign in to like a post")
+        toast.error("Please sign in to like posts")
         route.push("/sign-in")
       }
     } catch (error) {
@@ -54,18 +52,26 @@ const ButtonLike = ({ postId, postLike, isLiked = false,  onLikeChange }: Button
   }
 
   return (
-    <div className="flex items-center gap-2 mt-2">
+    <div className="flex items-center gap-3">
       <Button
         variant="ghost"
         size="sm"
         onClick={handleLike}
         disabled={isLoading}
-        className={`${liked ? "text-red-500 hover:text-red-600" : "text-gray-500 hover:text-gray-600"}`}
+        className={`group transition-colors ${
+          liked 
+            ? "text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10" 
+            : "text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
+        }`}
       >
-        {liked ? <Heart className="w-5 h-5 fill-current" /> : <Heart className="w-5 h-5" />}
-        <span className="ml-2">Like</span>
+        <Heart className={`w-5 h-5 transition-all ${
+          liked 
+            ? "fill-current scale-110" 
+            : "group-hover:scale-110 group-hover:fill-current"
+        }`} />
+        <span className="ml-2 font-medium">Like</span>
       </Button>
-      <span className="text-sm text-gray-500">
+      <span className="text-sm text-muted-foreground font-medium">
         {likeCount} {likeCount === 1 ? "like" : "likes"}
       </span>
     </div>

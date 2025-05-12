@@ -30,7 +30,7 @@ interface Post {
 }
 
 interface ContentPostProps {
-  refreshKey: number; // รับค่า refreshKey จาก parent
+  refreshKey: number;
   currentId: string;
 }
 
@@ -43,8 +43,6 @@ const ContentPost = ({ refreshKey, currentId }: ContentPostProps) => {
   const observerRef = useRef<HTMLDivElement | null>(null);
   const latestPostDateRef = useRef<string | null>(null);
 
-  // 👇 โหลดโพสต์
-  // Add fetchPosts to useCallback to prevent infinite loops
   const fetchPosts = useCallback(async (cursor?: string, isRefresh = false) => {
     try {
       setIsLoading(true);
@@ -56,7 +54,6 @@ const ContentPost = ({ refreshKey, currentId }: ContentPostProps) => {
         if (isRefresh) {
           setPosts(data.posts);
         } else {
-          // Prevent duplicate posts by checking IDs
           setPosts((prev) => {
             const newPosts = data.posts.filter(
               (newPost: Post) =>
@@ -84,17 +81,14 @@ const ContentPost = ({ refreshKey, currentId }: ContentPostProps) => {
     }
   }, []);
 
-  // Update dependency array
   useEffect(() => {
     fetchPosts(undefined, true);
   }, [refreshKey, fetchPosts]);
 
-  // 👇 โหลดโพสต์ใหม่ทุกครั้งที่ refreshKey เปลี่ยน
   useEffect(() => {
     fetchPosts();
-  }, [refreshKey]); // เปลี่ยนแค่เมื่อ refreshKey เปลี่ยน
+  }, [refreshKey]);
 
-  // 👇 Observer สำหรับ Infinite Scroll
   useEffect(() => {
     if (!hasMore) return;
 
@@ -115,54 +109,50 @@ const ContentPost = ({ refreshKey, currentId }: ContentPostProps) => {
     };
   }, [nextCursor, hasMore]);
 
-  // 👇 รีโหลดโพสต์ใหม่
   const handleRefresh = () => {
     fetchPosts(undefined, true);
   };
 
   return (
-    <div className="space-y-4 max-w-2xl mx-auto">
-      {/* แจ้งเตือนโพสต์ใหม่ */}
+    <div className="space-y-6 max-w-2xl mx-auto">
       {hasNewPosts && (
-        <Alert className="bg-blue-50 border-blue-200 mb-4">
+        <Alert className="bg-blue-50/30 backdrop-blur-sm border-blue-200 mb-4 animate-fade-in">
           <AlertCircle className="h-4 w-4 text-blue-600" />
           <AlertDescription className="flex justify-between items-center">
-            <span className="text-blue-600">มีโพสต์ใหม่!</span>
+            <span className="text-blue-600 font-medium">New posts available!</span>
             <Button
               variant="outline"
               size="sm"
               onClick={handleRefresh}
-              className="border-blue-200 text-blue-600 hover:bg-blue-100 hover:text-blue-700"
+              className="border-blue-200 text-blue-600 hover:bg-blue-100/50 hover:text-blue-700"
             >
-              โหลดโพสต์ใหม่
+              Load new posts
             </Button>
           </AlertDescription>
         </Alert>
       )}
 
-      {/* แสดงสถานะกำลังโหลด */}
       {isLoading && posts.length === 0 && (
-        <div className="text-center py-8">
-          <div className="animate-pulse text-gray-500">กำลังโหลดโพสต์...</div>
+        <div className="text-center py-12">
+          <div className="animate-pulse text-muted-foreground">Loading posts...</div>
         </div>
       )}
 
-      {/* แสดงโพสต์ */}
       {posts.map((post, index) => (
-        <Card key={`${post.id}-${index}`} className="shadow-sm">
+        <Card key={`${post.id}-${index}`} className="shadow-sm hover:shadow-md transition-shadow duration-200">
           <CardHeader className="flex flex-row items-center gap-4 pb-4">
-            <Avatar>
+            <Avatar className="h-12 w-12 ring-2 ring-primary/10">
               <AvatarImage
                 src={post.user.image || "/placeholder.svg"}
                 alt={post.user.name}
               />
-              <AvatarFallback>
+              <AvatarFallback className="bg-primary/5 text-primary font-medium">
                 {post.user.name?.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="font-semibold">{post.user.name}</p>
-              <p className="text-sm text-gray-500">
+              <p className="font-semibold text-foreground">{post.user.name}</p>
+              <p className="text-sm text-muted-foreground">
                 {new Date(post.createdAt).toLocaleDateString("th-TH", {
                   year: "numeric",
                   month: "long",
@@ -176,7 +166,7 @@ const ContentPost = ({ refreshKey, currentId }: ContentPostProps) => {
           <CardContent>
             <div className="relative">
               <p
-                className={`whitespace-pre-wrap ${
+                className={`whitespace-pre-wrap text-foreground/90 ${
                   !post.expanded && "line-clamp-10"
                 }`}
               >
@@ -186,7 +176,7 @@ const ContentPost = ({ refreshKey, currentId }: ContentPostProps) => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="mt-2 text-blue-600 hover:text-blue-800 p-0 h-auto font-normal"
+                  className="mt-2 text-primary hover:text-primary/90 p-0 h-auto font-normal"
                   onClick={() => {
                     setPosts((prev) =>
                       prev.map((p) =>
@@ -195,7 +185,7 @@ const ContentPost = ({ refreshKey, currentId }: ContentPostProps) => {
                     );
                   }}
                 >
-                  {post.expanded ? "แสดงน้อยลง" : "แสดงเพิ่มเติม"}
+                  {post.expanded ? "Show less" : "Show more"}
                 </Button>
               )}
             </div>
@@ -210,26 +200,24 @@ const ContentPost = ({ refreshKey, currentId }: ContentPostProps) => {
         </Card>
       ))}
 
-      {/* จุดสังเกตว่าถึงล่างสุดหรือยัง */}
       {hasMore && !isLoading && (
         <div
           ref={observerRef}
-          className="text-center py-4 text-sm text-gray-500"
+          className="text-center py-6 text-sm text-muted-foreground animate-pulse"
         >
-          กำลังโหลดเพิ่มเติม...
+          Loading more posts...
         </div>
       )}
 
-      {/* แสดงสถานะกำลังโหลดเพิ่มเติม */}
       {isLoading && posts.length > 0 && (
-        <div className="text-center py-4 text-sm text-gray-500">
-          กำลังโหลดเพิ่มเติม...
+        <div className="text-center py-6 text-sm text-muted-foreground animate-pulse">
+          Loading more posts...
         </div>
       )}
 
-      {!hasMore && !isLoading && (
-        <div className="text-center py-4 text-sm text-gray-400">
-          ไม่มีโพสต์เพิ่มเติมแล้ว
+      {!hasMore && !isLoading && posts.length > 0 && (
+        <div className="text-center py-8 text-sm text-muted-foreground">
+          You've reached the end
         </div>
       )}
     </div>
