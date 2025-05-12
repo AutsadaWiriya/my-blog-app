@@ -94,6 +94,12 @@ const ContentPost = ({ refreshKey, currentId }: ContentPostProps) => {
     fetchPosts(undefined, true);
   }, [refreshKey, fetchPosts]);
 
+  // 👇 โหลดโพสต์ใหม่ทุกครั้งที่ refreshKey เปลี่ยน
+  useEffect(() => {
+    fetchPosts();
+  }, [refreshKey]); // เปลี่ยนแค่เมื่อ refreshKey เปลี่ยน
+
+  // 👇 Observer สำหรับ Infinite Scroll
   useEffect(() => {
     if (!hasMore) return;
 
@@ -150,69 +156,55 @@ const ContentPost = ({ refreshKey, currentId }: ContentPostProps) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 max-w-2xl mx-auto">
+      {/* แจ้งเตือนโพสต์ใหม่ */}
       {hasNewPosts && (
-        <Alert className="bg-primary/10 border-primary/20 rounded-lg">
-          <AlertCircle className="h-4 w-4 text-primary" />
+        <Alert className="bg-blue-50 border-blue-200 mb-4">
+          <AlertCircle className="h-4 w-4 text-blue-600" />
           <AlertDescription className="flex justify-between items-center">
-            <span className="text-primary font-medium">New posts available</span>
+            <span className="text-blue-600">มีโพสต์ใหม่!</span>
             <Button
               variant="outline"
               size="sm"
               onClick={handleRefresh}
-              className="border-primary/20 text-primary hover:bg-primary/20 hover:text-primary"
+              className="border-blue-200 text-blue-600 hover:bg-blue-100 hover:text-blue-700"
             >
-              Refresh
+              โหลดโพสต์ใหม่
             </Button>
           </AlertDescription>
         </Alert>
       )}
 
       {isLoading && posts.length === 0 && (
-        <>
-          {[1, 2].map((i) => (
-            <Card key={i} className="overflow-hidden">
-              <CardHeader className="flex flex-row items-center gap-4 pb-4">
-                <Skeleton className="h-12 w-12 rounded-full" />
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-3 w-32" />
-                </div>
-              </CardHeader>
-              <CardContent className="pb-2">
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-3/4" />
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Skeleton className="h-8 w-20" />
-              </CardFooter>
-            </Card>
-          ))}
-        </>
+        <div className="text-center py-8">
+          <div className="animate-pulse text-gray-500">กำลังโหลดโพสต์...</div>
+        </div>
       )}
 
+      {/* แสดงโพสต์ */}
       {posts.map((post, index) => (
-        <Card key={`${post.id}-${index}`} className="overflow-hidden border shadow-sm hover:shadow-md transition-shadow duration-200">
-          <CardHeader className="flex flex-row items-center justify-between pb-4">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10 border">
-                <AvatarImage
-                  src={post.user.image || "/placeholder.svg"}
-                  alt={post.user.name}
-                />
-                <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                  {post.user.name?.slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <div className="font-medium">{post.user.name}</div>
-                <div className="text-xs text-muted-foreground">
-                  {formatDate(post.createdAt)}
-                </div>
-              </div>
+        <Card key={`${post.id}-${index}`} className="shadow-sm">
+          <CardHeader className="flex flex-row items-center gap-4 pb-4">
+            <Avatar>
+              <AvatarImage
+                src={post.user.image || "/placeholder.svg"}
+                alt={post.user.name}
+              />
+              <AvatarFallback>
+                {post.user.name?.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-semibold">{post.user.name}</p>
+              <p className="text-sm text-gray-500">
+                {new Date(post.createdAt).toLocaleDateString("th-TH", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
             </div>
             
             <DropdownMenu>
@@ -232,8 +224,8 @@ const ContentPost = ({ refreshKey, currentId }: ContentPostProps) => {
           <CardContent className="px-5 pb-4">
             <div className="relative">
               <p
-                className={`whitespace-pre-wrap leading-relaxed text-balance ${
-                  !post.expanded && "line-clamp-6"
+                className={`whitespace-pre-wrap ${
+                  !post.expanded && "line-clamp-10"
                 }`}
               >
                 {post.content}
@@ -242,7 +234,7 @@ const ContentPost = ({ refreshKey, currentId }: ContentPostProps) => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="mt-2 text-primary hover:text-primary/80 p-0 h-auto font-normal"
+                  className="mt-2 text-blue-600 hover:text-blue-800 p-0 h-auto font-normal"
                   onClick={() => {
                     setPosts((prev) =>
                       prev.map((p) =>
@@ -293,27 +285,21 @@ const ContentPost = ({ refreshKey, currentId }: ContentPostProps) => {
       {hasMore && !isLoading && (
         <div
           ref={observerRef}
-          className="h-10"
-        />
-      )}
-
-      {isLoading && posts.length > 0 && (
-        <div className="flex justify-center py-4">
-          <div className="animate-pulse flex flex-col items-center">
-            <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center">
-              <span className="text-primary loading">●●●</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">Loading more posts</p>
-          </div>
+          className="text-center py-4 text-sm text-gray-500"
+        >
+          กำลังโหลดเพิ่มเติม...
         </div>
       )}
 
-      {!hasMore && !isLoading && posts.length > 0 && (
-        <div className="text-center py-8 border-t">
-          <p className="text-sm text-muted-foreground">You've reached the end</p>
-          <Button variant="link" onClick={handleRefresh} className="mt-1">
-            Refresh feed
-          </Button>
+      {isLoading && posts.length > 0 && (
+        <div className="text-center py-4 text-sm text-gray-500">
+          กำลังโหลดเพิ่มเติม...
+        </div>
+      )}
+
+      {!hasMore && !isLoading && (
+        <div className="text-center py-4 text-sm text-gray-400">
+          ไม่มีโพสต์เพิ่มเติมแล้ว
         </div>
       )}
     </div>

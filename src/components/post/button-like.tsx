@@ -14,8 +14,8 @@ interface ButtonLikeProps {
   onLikeChange?: (liked: boolean) => void
 }
 
-const ButtonLike = ({ postId, postLike, isLiked = false, onLikeChange }: ButtonLikeProps) => {
-  const router = useRouter()
+const ButtonLike = ({ postId, postLike, isLiked = false,  onLikeChange }: ButtonLikeProps) => {
+  const route  = useRouter()
   const [liked, setLiked] = useState(isLiked)
   const [isLoading, setIsLoading] = useState(false)
   const [likeCount, setLikeCount] = useState(postLike)
@@ -43,6 +43,7 @@ const ButtonLike = ({ postId, postLike, isLiked = false, onLikeChange }: ButtonL
       if (response.ok) {
         setLikeCount((prev) => prev + (newLikeState ? 1 : -1))
 
+        // Notify parent component about the like change
         if (onLikeChange) {
           onLikeChange(newLikeState)
         }
@@ -51,7 +52,7 @@ const ButtonLike = ({ postId, postLike, isLiked = false, onLikeChange }: ButtonL
       if (!response.ok) {
         setLiked(!newLikeState)
         toast.error("You must sign in to like a post")
-        router.push("/sign-in")
+        route.push("/sign-in")
       }
     } catch (error) {
       console.error("Error liking post:", error)
@@ -61,35 +62,19 @@ const ButtonLike = ({ postId, postLike, isLiked = false, onLikeChange }: ButtonL
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 mt-2">
       <Button
         variant="ghost"
         size="sm"
         onClick={handleLike}
         disabled={isLoading}
-        className={cn(
-          "text-muted-foreground hover:text-foreground group gap-2",
-          liked && "text-red-500 hover:text-red-600"
-        )}
+        className={`${liked ? "text-red-500 hover:text-red-600" : "text-gray-500 hover:text-gray-600"}`}
       >
-        <span className={cn(
-          "relative transition-all",
-          animating && "animate-heartbeat"
-        )}>
-          <Heart 
-            className={cn(
-              "w-4 h-4 transition-all", 
-              liked ? "fill-red-500 stroke-red-500" : "fill-none group-hover:scale-110 duration-300"
-            )} 
-          />
-        </span>
-        <span>{liked ? "Liked" : "Like"}</span>
+        {liked ? <Heart className="w-5 h-5 fill-current" /> : <Heart className="w-5 h-5" />}
+        <span className="ml-2">Like</span>
       </Button>
-      <span className={cn(
-        "text-xs font-medium px-1.5 py-0.5 rounded-full transition-all",
-        liked ? "bg-red-100 text-red-600 dark:bg-red-950 dark:text-red-300" : "text-muted-foreground"
-      )}>
-        {likeCount > 0 && likeCount}
+      <span className="text-sm text-gray-500">
+        {likeCount} {likeCount === 1 ? "like" : "likes"}
       </span>
     </div>
   )
