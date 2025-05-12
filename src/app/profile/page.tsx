@@ -46,6 +46,10 @@ const Page = async () => {
           image={user.image ?? ''}
           createdAt={formattedDate}
         />
+        
+        {/* Add more space between components */}
+        <div className="h-12"></div>
+        
         <DangerZone email={user.email ?? ''}/>
       </div>
     </div>

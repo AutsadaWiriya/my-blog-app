@@ -62,7 +62,7 @@ const MainPage = ({ currentId }: { currentId: string }) => {
 
           {/* Create Post */}
           {currentId && (
-            <div className="bg-card rounded-xl shadow-sm border overflow-hidden">
+            <div className="rounded-xl overflow-hidden">
               <CreatePost onPostCreated={handlePostCreated} />
             </div>
           )}
