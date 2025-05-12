@@ -1,4 +1,4 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
+import { Calendar, Home, Inbox, Search, Settings, MessageSquare } from "lucide-react";
 
 export const menuItems = {
   items: [
@@ -8,24 +8,9 @@ export const menuItems = {
       icon: Home
     },
     {
-      title: "Inbox",
-      url: "/index",
-      icon: Inbox
-    },
-    {
-      title: "Calendar",
-      url: "#",
-      icon: Calendar
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: Search
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings
+      title: "Chat",
+      url: "/chat",
+      icon: MessageSquare
     },
     {
       title: "Manage Users",

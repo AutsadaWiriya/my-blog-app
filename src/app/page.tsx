@@ -1,24 +1,14 @@
-"use client";
+import { auth } from "@/lib/auth";
+import MainPage from "@/components/post/main-page";
 
-import ContentPost from "@/components/post/content-post";
-import CreatePost from "@/components/post/create-post";
-import { useState } from "react";
-
-const Page = () => {
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  const handlePostCreated = () => {
-    setRefreshKey(prev => prev + 1);
-  };
+const page = async () => {
+  const session = await auth();
 
   return (
     <>
-      <div className="space-y-5 min-h-screen py-12 px-4">
-        <CreatePost onPostCreated={handlePostCreated} />
-        <ContentPost key={refreshKey} />
-      </div>
+      <MainPage currentId={session?.user?.id ?? ''} />
     </>
-  );
+  )
 };
 
-export default Page;
+export default page;
