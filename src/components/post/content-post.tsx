@@ -156,12 +156,12 @@ const ContentPost = ({ refreshKey, currentId }: ContentPostProps) => {
   };
 
   return (
-    <div className="space-y-4 max-w-2xl mx-auto">
+    <div className="space-y-4 max-w-full sm:max-w-2xl mx-auto px-2 sm:px-0">
       {/* แจ้งเตือนโพสต์ใหม่ */}
       {hasNewPosts && (
         <Alert className="bg-blue-50 border-blue-200 mb-4">
           <AlertCircle className="h-4 w-4 text-blue-600" />
-          <AlertDescription className="flex justify-between items-center">
+          <AlertDescription className="flex justify-between items-center w-full">
             <span className="text-blue-600">มีโพสต์ใหม่!</span>
             <Button
               variant="outline"
@@ -183,9 +183,9 @@ const ContentPost = ({ refreshKey, currentId }: ContentPostProps) => {
 
       {/* แสดงโพสต์ */}
       {posts.map((post, index) => (
-        <Card key={`${post.id}-${index}`} className="shadow-sm">
-          <CardHeader className="flex flex-row items-center gap-4 pb-4">
-            <Avatar>
+        <Card key={`${post.id}-${index}`} className="shadow-sm w-full">
+          <CardHeader className="flex flex-row items-center gap-3 pb-4 px-3 sm:px-5 sm:gap-4">
+            <Avatar className="h-9 w-9 sm:h-10 sm:w-10">
               <AvatarImage
                 src={post.user.image || "/placeholder.svg"}
                 alt={post.user.name}
@@ -194,9 +194,9 @@ const ContentPost = ({ refreshKey, currentId }: ContentPostProps) => {
                 {post.user.name?.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div>
-              <p className="font-semibold">{post.user.name}</p>
-              <p className="text-sm text-gray-500">
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold truncate">{post.user.name}</p>
+              <p className="text-xs sm:text-sm text-gray-500 truncate">
                 {new Date(post.createdAt).toLocaleDateString("th-TH", {
                   year: "numeric",
                   month: "long",
@@ -221,10 +221,10 @@ const ContentPost = ({ refreshKey, currentId }: ContentPostProps) => {
             </DropdownMenu>
           </CardHeader>
           
-          <CardContent className="px-5 pb-4">
+          <CardContent className="px-3 sm:px-5 pb-4">
             <div className="relative">
               <p
-                className={`whitespace-pre-wrap ${
+                className={`whitespace-pre-wrap text-sm sm:text-base ${
                   !post.expanded && "line-clamp-10"
                 }`}
               >
@@ -234,7 +234,7 @@ const ContentPost = ({ refreshKey, currentId }: ContentPostProps) => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="mt-2 text-blue-600 hover:text-blue-800 p-0 h-auto font-normal"
+                  className="mt-2 text-blue-600 hover:text-blue-800 p-0 h-auto font-normal text-xs sm:text-sm"
                   onClick={() => {
                     setPosts((prev) =>
                       prev.map((p) =>
@@ -250,27 +250,29 @@ const ContentPost = ({ refreshKey, currentId }: ContentPostProps) => {
           </CardContent>
           
           <CardFooter className="border-t flex-col">
-            <div className="flex items-center gap-4 w-full">
-              <ButtonLike
-                postId={post.id}
-                postLike={post.likes.length}
-                isLiked={post.likes.some((like) => like.userId === currentId)}
-              />
-              
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-muted-foreground hover:text-foreground gap-2"
-                onClick={() => toggleComments(post.id)}
-              >
-                <MessageCircle className="h-4 w-4" />
-                <span>Comment</span>
-              </Button>
-              
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground gap-2 ml-auto">
-                <Share2 className="h-4 w-4" />
-                <span>Share</span>
-              </Button>
+            <div className="flex items-center w-full">
+              <div className="flex flex-wrap items-center gap-1 sm:gap-4 w-full">
+                <ButtonLike
+                  postId={post.id}
+                  postLike={post.likes.length}
+                  isLiked={post.likes.some((like) => like.userId === currentId)}
+                />
+                
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-muted-foreground hover:text-foreground gap-1 sm:gap-2 text-xs sm:text-sm ml-0 sm:ml-6"
+                  onClick={() => toggleComments(post.id)}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  <span>Comment</span>
+                </Button>
+                
+                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground gap-1 sm:gap-2 text-xs sm:text-sm ml-auto">
+                  <Share2 className="h-4 w-4" />
+                  <span>Share</span>
+                </Button>
+              </div>
             </div>
 
             {post.showComments && (

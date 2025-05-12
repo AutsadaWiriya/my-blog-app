@@ -132,21 +132,24 @@ export default function CommentItem({
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="h-8 w-8 p-0 rounded-full opacity-0 group-hover:opacity-100"
+                    className="h-8 w-8 p-0 rounded-full opacity-0 group-hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     disabled={isDeleting}
                   >
                     <MoreHorizontal className="h-4 w-4" />
                     <span className="sr-only">More</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[160px]">
-                  <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                    <Edit2 className="mr-2 h-4 w-4" />
+                <DropdownMenuContent align="end" className="w-[160px] p-1.5">
+                  <DropdownMenuItem 
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center cursor-pointer py-2 px-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors font-medium"
+                  >
+                    <Edit2 className="mr-2 h-4 w-4 text-indigo-600 dark:text-indigo-500" />
                     Edit
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
+                  <DropdownMenuSeparator className="my-1 bg-gray-200 dark:bg-gray-700" />
                   <DropdownMenuItem
-                    className="text-destructive focus:text-destructive"
+                    className="flex items-center cursor-pointer py-2 px-3 text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors font-medium"
                     onClick={handleDelete}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
@@ -174,17 +177,19 @@ export default function CommentItem({
                     setEditedContent(comment.content);
                   }}
                   disabled={isSubmitting}
+                  className="rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
                 >
                   <X className="mr-2 h-3.5 w-3.5" />
-                  Cancel
+                  <span className="font-medium">Cancel</span>
                 </Button>
                 <Button
                   size="sm"
                   onClick={handleEdit}
                   disabled={isSubmitting || editedContent.trim() === ""}
+                  className="rounded-full bg-indigo-600 hover:bg-indigo-700 text-white transition-all duration-300 flex items-center"
                 >
                   <Check className="mr-2 h-3.5 w-3.5" />
-                  Save
+                  <span className="font-medium">Save</span>
                 </Button>
               </div>
             </div>

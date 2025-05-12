@@ -100,19 +100,20 @@ export default function CommentsSection({
             <Button
               onClick={handleSubmit}
               disabled={isSubmitting || comment.trim() === ""}
-              className="px-4 gap-2 rounded-full"
+              className="px-4 gap-2 rounded-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-600 text-white relative overflow-hidden transition-all duration-300"
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Posting...</span>
+                  <span className="font-medium">Posting...</span>
                 </>
               ) : (
                 <>
                   <SendHorizontal className="h-4 w-4" />
-                  <span>Post</span>
+                  <span className="font-medium">Post</span>
                 </>
               )}
+              <span className="absolute inset-0 bg-white/10 opacity-0 hover:opacity-20 transition-opacity duration-300"></span>
             </Button>
           </div>
         </div>
