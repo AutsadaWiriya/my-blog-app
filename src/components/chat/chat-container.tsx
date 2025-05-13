@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { pusherClient } from "@/lib/pusher";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { SendHorizontal, Loader2, RefreshCw, Info, Users } from "lucide-react";
+import { SendHorizontal, Loader2, RefreshCw, Info, Users, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import MessageItem from "./message-item";
 import {
@@ -47,29 +47,84 @@ export default function ChatContainer({ userId }: ChatContainerProps) {
   const [isSending, setIsSending] = useState(false);
   const [isRealtime, setIsRealtime] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
   const messageEndRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const scrollPositionRef = useRef(0);
+  const LIMIT = 20;
+  const THRESHOLD = 50;
 
   const scrollToBottom = () => {
-    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (shouldScrollToBottom) {
+      messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
-  const fetchMessages = async () => {
+  const fetchMessages = async (cursor?: string | null) => {
     try {
-      setIsLoading(true);
-      console.log("Fetching messages...");
-      const response = await fetch("/api/chat");
+      if (loadingMore && cursor) return;
+      
+      if (!cursor) setIsLoading(true);
+      else setLoadingMore(true);
+      
+      console.log("Fetching messages, cursor:", cursor);
+      const url = `/api/chat?limit=${LIMIT}${cursor ? `&cursor=${cursor}` : ''}`;
+      const response = await fetch(url);
       const data = await response.json();
+      
       if (response.ok) {
-        console.log("Messages received:", data.messages?.length || 0);
-        setMessages(data.messages || []);
+        console.log("Messages received:", data.messages?.length || 0, "hasMore:", data.hasMore);
+        
+        if (cursor) {
+          const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
+          if (scrollContainer) {
+            scrollPositionRef.current = scrollContainer.scrollHeight;
+          }
+          
+          setMessages(prev => [...data.messages, ...prev]);
+
+          setTimeout(() => {
+            const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
+            if (scrollContainer) {
+              const newPosition = scrollContainer.scrollHeight - scrollPositionRef.current;
+              scrollContainer.scrollTop = newPosition > 0 ? newPosition : 0;
+            }
+          }, 50);
+        } else {
+          setMessages(data.messages || []);
+        }
+        
+        setNextCursor(data.nextCursor);
+        setHasMore(data.hasMore);
       }
     } catch (error) {
       console.error("Error fetching messages:", error);
       toast.error("Failed to load messages");
     } finally {
       setIsLoading(false);
+      setLoadingMore(false);
     }
   };
+
+  const loadMoreMessages = useCallback(async () => {
+    if (!nextCursor || loadingMore || isLoading || !hasMore) {
+      console.log("Skip loading more:", { 
+        nextCursor: !!nextCursor, 
+        loadingMore, 
+        isLoading, 
+        hasMore 
+      });
+      return;
+    }
+
+    console.log("Loading more messages...");
+    setLoadingMore(true);
+    setShouldScrollToBottom(false);
+    await fetchMessages(nextCursor);
+  }, [nextCursor, loadingMore, isLoading, hasMore]);
 
   const refreshMessages = async () => {
     try {
@@ -84,7 +139,6 @@ export default function ChatContainer({ userId }: ChatContainerProps) {
   };
 
   const setupPusher = () => {
-    // Only setup if pusherClient exists
     if (!pusherClient) {
       console.warn("Pusher client not available. Real-time updates disabled.");
       setIsRealtime(false);
@@ -93,14 +147,12 @@ export default function ChatContainer({ userId }: ChatContainerProps) {
 
     try {
       console.log("Setting up Pusher connection...");
-      // Type assertion to avoid null check on each access
       const client = pusherClient;
       const channel = client.subscribe("chat");
       
       const handleNewMessage = (newMessage: Message) => {
         console.log("New message received:", newMessage);
         setMessages((prev) => {
-          // Check if message already exists to prevent duplicates
           if (prev.some(msg => msg.id === newMessage.id)) {
             return prev;
           }
@@ -132,10 +184,12 @@ export default function ChatContainer({ userId }: ChatContainerProps) {
 
     const cleanup = setupPusher();
     
-    // Fallback to polling if real-time is not available
     let intervalId: NodeJS.Timeout | undefined;
     if (!isRealtime) {
-      intervalId = setInterval(fetchMessages, 10000);
+      intervalId = setInterval(() => {
+        setShouldScrollToBottom(true);
+        fetchMessages();
+      }, 10000);
     }
 
     return () => {
@@ -146,7 +200,7 @@ export default function ChatContainer({ userId }: ChatContainerProps) {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages.length, shouldScrollToBottom]);
 
   const handleSendMessage = async () => {
     if (!message.trim()) return;
@@ -154,6 +208,8 @@ export default function ChatContainer({ userId }: ChatContainerProps) {
     try {
       setIsSending(true);
       console.log("Sending message:", message);
+      
+      setShouldScrollToBottom(true);
       
       const response = await fetch("/api/chat", {
         method: "POST",
@@ -173,7 +229,6 @@ export default function ChatContainer({ userId }: ChatContainerProps) {
 
       console.log("Message sent successfully:", responseData);
 
-      // If no real-time updates, we need to refresh messages after sending
       if (!isRealtime) {
         await fetchMessages();
       }
@@ -192,6 +247,20 @@ export default function ChatContainer({ userId }: ChatContainerProps) {
       e.preventDefault();
       handleSendMessage();
     }
+  };
+
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop } = e.currentTarget;
+    
+    if (scrollTop < THRESHOLD && hasMore && !loadingMore && !isLoading) {
+      console.log('Scroll position near top, auto loading more...', scrollTop);
+      loadMoreMessages();
+    }
+  }, [hasMore, loadingMore, isLoading, loadMoreMessages]);
+
+  const handleRefresh = async () => {
+    setShouldScrollToBottom(true);
+    await refreshMessages();
   };
 
   return (
@@ -229,7 +298,7 @@ export default function ChatContainer({ userId }: ChatContainerProps) {
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  onClick={refreshMessages} 
+                  onClick={handleRefresh} 
                   disabled={isRefreshing}
                   className="h-8 w-8 p-0"
                 >
@@ -248,8 +317,12 @@ export default function ChatContainer({ userId }: ChatContainerProps) {
         </CardDescription>
       </CardHeader>
       
-      <CardContent className="p-0">
-        <ScrollArea className="h-[500px] px-4 pb-4">
+      <CardContent className="p-0 relative">
+        <ScrollArea 
+          className="h-[500px] px-4 pb-4" 
+          onScroll={handleScroll} 
+          ref={scrollAreaRef}
+        >
           {isLoading && messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-2">
               <Loader2 className="h-8 w-8 animate-spin text-primary/70" />
@@ -269,9 +342,22 @@ export default function ChatContainer({ userId }: ChatContainerProps) {
             </div>
           ) : (
             <div className="space-y-4 pt-4">
-              {isLoading && (
+              {loadingMore && (
                 <div className="flex justify-center py-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-primary/70" />
+                  <Loader2 className="h-5 w-5 animate-spin text-primary/70" />
+                </div>
+              )}
+              {hasMore && !loadingMore && nextCursor && (
+                <div className="flex justify-center py-2">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={loadMoreMessages}
+                    className="text-xs text-muted-foreground flex items-center gap-1"
+                  >
+                    <ChevronUp className="h-3 w-3" />
+                    Load more
+                  </Button>
                 </div>
               )}
               {messages.map((msg) => (

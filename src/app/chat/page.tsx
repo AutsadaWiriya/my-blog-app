@@ -9,7 +9,7 @@ export default async function ChatPage() {
   const session = await auth();
 
   if (!session?.user) {
-    redirect("/auth/signin?callbackUrl=/chat");
+    redirect("/sign-in");
   }
 
   return (

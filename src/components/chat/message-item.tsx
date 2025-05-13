@@ -54,7 +54,7 @@ export default function MessageItem({ message, currentUserId }: MessageItemProps
               : "bg-muted"
           }`}
         >
-          <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+          <p className="text-sm break-all whitespace-pre-wrap overflow-hidden">{message.content}</p>
         </div>
       </div>
     </div>
