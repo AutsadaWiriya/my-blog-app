@@ -57,7 +57,13 @@ export async function POST(request: Request) {
     // Trigger Pusher event if pusher is configured
     if (pusher) {
       try {
-        await pusher.trigger("chat", "new-message", message);
+        // แปลง Date เป็น string เพื่อให้ serializable
+        const messageForPusher = {
+          ...message,
+          createdAt: message.createdAt.toISOString(),
+        };
+        
+        await pusher.trigger("chat", "new-message", messageForPusher);
         console.log("Pusher event triggered for message:", message.id);
       } catch (error) {
         console.error("Error triggering Pusher event:", error);
@@ -68,7 +74,13 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { message: "Message sent successfully", data: message },
+      { 
+        message: "Message sent successfully", 
+        data: {
+          ...message,
+          createdAt: message.createdAt.toISOString(),
+        }
+      },
       { status: 201 }
     );
   } catch (error) {
@@ -80,12 +92,19 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     console.log("Fetching messages from database");
-    // Get the most recent 50 messages
-    const messages = await prisma.message.findMany({
-      take: 50,
+    
+    const { searchParams } = new URL(request.url);
+    const limitParam = searchParams.get("limit");
+    const cursorParam = searchParams.get("cursor");
+    
+    // Default to 20 messages, max 50
+    const limit = limitParam ? Math.min(parseInt(limitParam), 50) : 20;
+    
+    let queryOptions: any = {
+      take: limit,
       orderBy: {
         createdAt: "desc",
       },
@@ -98,12 +117,34 @@ export async function GET() {
           },
         },
       },
-    });
+    };
 
+    // Add cursor for pagination if provided
+    if (cursorParam) {
+      queryOptions.skip = 1; // Skip the cursor
+      queryOptions.cursor = {
+        id: cursorParam,
+      };
+    }
+
+    const messages = await prisma.message.findMany(queryOptions);
     console.log(`Found ${messages.length} messages`);
     
+    // Get the last message id for the next cursor
+    const nextCursor = messages.length > 0 ? messages[messages.length - 1].id : null;
+    
+    // Convert Date objects to strings for serialization
+    const serializedMessages = messages.map(message => ({
+      ...message,
+      createdAt: message.createdAt.toISOString(),
+    }));
+    
     return NextResponse.json(
-      { messages: messages.reverse() },
+      { 
+        messages: serializedMessages.reverse(),
+        nextCursor: nextCursor,
+        hasMore: messages.length === limit
+      },
       { status: 200 }
     );
   } catch (error) {
