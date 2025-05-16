@@ -156,6 +156,7 @@ export default function ChatContainer({ userId }: ChatContainerProps) {
           if (prev.some(msg => msg.id === newMessage.id)) {
             return prev;
           }
+          setShouldScrollToBottom(true);
           return [...prev, newMessage];
         });
       };
@@ -200,7 +201,7 @@ export default function ChatContainer({ userId }: ChatContainerProps) {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages.length, shouldScrollToBottom]);
+  }, [messages]);
 
   const handleSendMessage = async () => {
     if (!message.trim()) return;
@@ -322,6 +323,7 @@ export default function ChatContainer({ userId }: ChatContainerProps) {
           className="h-[500px] px-4 pb-4" 
           onScroll={handleScroll} 
           ref={scrollAreaRef}
+          key={`messages-${messages.length}`}
         >
           {isLoading && messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-2">
